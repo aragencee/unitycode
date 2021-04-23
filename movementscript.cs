@@ -11,12 +11,24 @@ public class movementscript : MonoBehaviour
     float verticalMovement;
     float rbdrag = 6;
     float moveMultiplier = 20f;
+    bool isGrounded;
+    float playerHeight = 2f;
+    public float jumpForce = 15f;
+    float airdrag = 2f;
+    float airMoveMulti = 0.4f;
 
     Rigidbody rb;
     private void Update()
     {
         myInput();
         controlDrag();
+        isGrounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.1f);
+        print(isGrounded);
+
+        if(Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        {
+            Jump();
+        }
     }
 
     private void Start()
@@ -33,7 +45,14 @@ public class movementscript : MonoBehaviour
 
     void controlDrag()
     {
-        rb.drag = rbdrag;
+        if (isGrounded)
+        {
+            rb.drag = rbdrag;
+        }
+        else
+        {
+            rb.drag = airdrag;
+        }
     }
 
     private void FixedUpdate()
@@ -43,6 +62,22 @@ public class movementscript : MonoBehaviour
 
     void movePlayer()
     {
+
+        if (isGrounded)
+        {
+
         rb.AddForce(moveDirection.normalized * moveSpeed * moveMultiplier, ForceMode.Acceleration);
+
+        }
+
+        else
+        {
+            rb.AddForce(moveDirection.normalized * moveSpeed * moveMultiplier * airMoveMulti, ForceMode.Acceleration);
+        }
+    }
+
+    void Jump ()
+    {
+        rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
     }
 }
